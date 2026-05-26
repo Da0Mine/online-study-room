@@ -1,0 +1,3364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自习室</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(116, 185, 255, 0.5);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(116, 185, 255, 0.7);
+        }
+
+        .parallax-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .parallax-bg {
+            position: absolute;
+            inset: -10%;
+            background-image: url('微信图片_20260523235315_1195_12.png');
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            z-index: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .parallax-bg-study {
+            position: absolute;
+            inset: -10%;
+            background-image: url('file_00000000856471f79d10c9266c123153_edit_145714190898319.png');
+            background-size: cover;
+            background-position: center;
+            will-change: transform;
+            z-index: 0.5;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .parallax-bg-study.active {
+            opacity: 1;
+        }
+
+        .parallax-bg-overlay {
+            position: absolute;
+            inset: -10%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            z-index: 1;
+        }
+
+        .parallax-bg-overlay.active {
+            opacity: 1;
+        }
+
+
+
+        .glass-orb {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02));
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: inset 0 0 30px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 2;
+        }
+
+        .glass-orb.lightning {
+            animation: lightningFlash 0.3s ease-out;
+        }
+
+        @keyframes lightningFlash {
+            0% {
+                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.3));
+                box-shadow: inset 0 0 50px rgba(255,255,255,0.6), 0 8px 32px rgba(0,0,0,0.2), 0 0 60px rgba(200,220,255,0.8);
+            }
+            50% {
+                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.15));
+                box-shadow: inset 0 0 40px rgba(255,255,255,0.4), 0 8px 32px rgba(0,0,0,0.2), 0 0 40px rgba(200,220,255,0.5);
+            }
+            100% {
+                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.02));
+                box-shadow: inset 0 0 30px rgba(255,255,255,0.1), 0 8px 32px rgba(0,0,0,0.2);
+            }
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(to bottom, rgba(174, 194, 224, 0.8), transparent);
+            animation: rainFall 0.8s linear infinite;
+        }
+
+        @keyframes rainFall {
+            0% {
+                transform: translateY(-20px) scaleY(0.5);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100px) scaleY(1);
+                opacity: 0;
+            }
+        }
+
+        .fire-glow {
+            position: relative;
+        }
+
+        .fire-glow::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            background: radial-gradient(ellipse at center bottom, rgba(255, 150, 50, 0.4) 0%, rgba(255, 100, 30, 0.2) 40%, transparent 70%);
+            animation: fireGlowPulse 2s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .fire-glow::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 20px;
+            background: radial-gradient(ellipse at center, rgba(255, 120, 30, 0.6) 0%, rgba(255, 80, 20, 0.3) 50%, transparent 70%);
+            filter: blur(10px);
+            animation: fireBaseGlow 1.5s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes fireGlowPulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes fireBaseGlow {
+            0% {
+                opacity: 0.7;
+                transform: translateX(-50%) scaleX(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(-50%) scaleX(1.1);
+            }
+        }
+
+        .fire-particle {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #ffcc00 0%, #ff6600 50%, #ff3300 100%);
+            border-radius: 50%;
+            animation: fireParticleRise 1.5s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes fireParticleRise {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-20px) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px) scale(0.3);
+            }
+        }
+
+        .ember {
+            position: absolute;
+            bottom: 0;
+            width: 2px;
+            height: 2px;
+            background: #ffcc00;
+            border-radius: 50%;
+            animation: emberFloat 2s ease-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes emberFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                opacity: 0.9;
+                transform: translateY(-15px) translateX(5px);
+            }
+            50% {
+                opacity: 0.7;
+                transform: translateY(-30px) translateX(-3px);
+            }
+            75% {
+                opacity: 0.4;
+                transform: translateY(-45px) translateX(8px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) translateX(-5px);
+            }
+        }
+
+        .fire-text {
+            animation: fireTextFlicker 0.15s ease-in-out infinite alternate;
+        }
+
+        @keyframes fireTextFlicker {
+            0% {
+                color: #ffcc66;
+                text-shadow: 0 0 5px #ff6600, 0 0 10px #ff4400, 0 0 15px #ff2200;
+            }
+            100% {
+                color: #ffeeaa;
+                text-shadow: 0 0 8px #ff8800, 0 0 15px #ff6600, 0 0 20px #ff3300;
+            }
+        }
+
+        .glass-orb-1 {
+            width: 180px;
+            height: 180px;
+            top: 15%;
+            right: 10%;
+        }
+
+        .glass-orb-2 {
+            width: 120px;
+            height: 120px;
+            bottom: 20%;
+            left: 5%;
+        }
+
+        .glass-orb-3 {
+            width: 80px;
+            height: 80px;
+            top: 60%;
+            right: 25%;
+        }
+
+        .glass-orb-4 {
+            width: 60px;
+            height: 60px;
+            top: 25%;
+            left: 15%;
+        }
+
+        .current-time {
+            position: absolute;
+            bottom: 35px;
+            right: 35px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: white;
+            letter-spacing: 0.04em;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 8px 16px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            z-index: 10;
+        }
+
+        .current-time .seconds {
+            color: #e8c97a;
+            font-weight: 400;
+            animation: pulse-colon 1s step-end infinite;
+        }
+
+        @keyframes pulse-colon {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.35; }
+        }
+
+        .stop-btn {
+            position: absolute;
+            top: 25px;
+            left: 90px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .stop-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .stop-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .stop-btn:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .stop-btn:hover::before {
+            left: 100%;
+        }
+
+        .stop-btn:active {
+            transform: scale(0.98);
+            filter: brightness(0.9);
+        }
+
+        .break-btn {
+            position: absolute;
+            top: 25px;
+            left: 205px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-20px);
+            z-index: 10;
+            overflow: hidden;
+        }
+
+        .break-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .break-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .break-btn:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .break-btn:hover::before {
+            left: 100%;
+        }
+
+        .break-btn:active {
+            transform: scale(0.98);
+            filter: brightness(0.9);
+        }
+
+        .break-btn.paused {
+            background: rgba(116, 185, 255, 0.15);
+            border-color: rgba(116, 185, 255, 0.4);
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+            z-index: 5;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .btn {
+            position: relative;
+            padding: 22px 60px;
+            font-size: 22px;
+            font-weight: 600;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-start {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 2px;
+            font-size: 22px;
+            padding: 20px 50px;
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-records {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 2px;
+            font-size: 22px;
+            padding: 20px 50px;
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-start:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-records:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+            filter: brightness(0.9);
+        }
+
+        .study-display {
+            position: absolute;
+            left: 35px;
+            bottom: 35px;
+            text-align: center;
+            color: white;
+            display: none;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 15px 25px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .study-time {
+            font-size: 48px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+        }
+
+        .study-time .seconds {
+            color: #e8c97a;
+            font-weight: 400;
+        }
+
+        .study-status {
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            opacity: 0.85;
+        }
+
+        .fullscreen-btn {
+            position: absolute;
+            top: 25px;
+            right: 200px;
+            width: 45px;
+            height: 45px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .fullscreen-btn:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .rest-reminder {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .rest-reminder.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rest-reminder-content {
+            background: rgba(30, 30, 40, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .rest-reminder.show .rest-reminder-content {
+            transform: scale(1);
+        }
+
+        .rest-reminder-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .rest-reminder-text {
+            font-size: 22px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .rest-reminder-message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 25px;
+        }
+
+        .rest-reminder-btn {
+            background: rgba(116, 185, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(116, 185, 255, 0.4);
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4);
+        }
+
+        .rest-reminder-btn:hover {
+            background: rgba(116, 185, 255, 0.3);
+            filter: brightness(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.55);
+            padding: 40px;
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: modalSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal h2 {
+            margin-bottom: 35px;
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .modal-btn {
+            padding: 18px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 1px;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-btn-direct {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .modal-btn-direct:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-btn-timed {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .modal-btn-timed:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-input-container {
+            display: none;
+            margin-top: 25px;
+            animation: fadeIn 0.3s ease;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .time-input-container.active {
+            display: flex;
+        }
+
+        .time-input-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px 20px;
+            min-width: 200px;
+        }
+
+        .time-input-box input {
+            flex: 1;
+            padding: 0;
+            font-size: 28px;
+            font-weight: 600;
+            border: none;
+            border-radius: 0;
+            width: auto;
+            text-align: center;
+            outline: none;
+            background: transparent;
+            color: white;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+        }
+
+        .time-input-box input:focus {
+            border-color: transparent;
+        }
+
+        .time-input-box input::-webkit-outer-spin-button,
+        .time-input-box input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .time-input-box input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .time-unit {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .time-input-container button {
+            padding: 15px 30px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .time-input-container button:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .records-modal .modal-content {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .total-time {
+            font-size: 24px;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .records-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .records-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .records-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .records-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .record-item {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            margin-bottom: 12px;
+            text-align: left;
+            border-left: 4px solid #74b9ff;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .record-item:hover {
+            transform: translateX(5px);
+            border-left-color: #0984e3;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .delete-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+        }
+
+        .delete-btn:hover {
+            background: rgba(231, 76, 60, 0.4);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .trash-btn {
+            padding: 8px 16px;
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .trash-btn:hover {
+            background: rgba(231, 76, 60, 0.3);
+        }
+
+        .empty-trash-btn {
+            padding: 8px 16px;
+            background: rgba(231, 76, 60, 0.3);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.5);
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .empty-trash-btn:hover {
+            background: rgba(231, 76, 60, 0.5);
+        }
+
+        .restore-btn {
+            padding: 6px 12px;
+            background: rgba(46, 213, 115, 0.2);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.4);
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .restore-btn:hover {
+            background: rgba(46, 213, 115, 0.3);
+        }
+
+        .trash-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .expand-icon {
+            float: right;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            transition: transform 0.3s;
+        }
+
+        .record-subitems {
+            margin-top: 12px;
+            padding-left: 20px;
+            border-left: 2px solid rgba(116, 185, 255, 0.3);
+        }
+
+        .record-subitem {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .time-group {
+            margin-bottom: 10px;
+        }
+
+        .time-group-header {
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+
+        .time-group-header:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .time-group-header.day-header {
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .time-group-header.month-header {
+            font-size: 13px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .time-group-content {
+            margin-top: 8px;
+            padding-left: 15px;
+        }
+
+        .time-group-content.month-content {
+            padding-left: 30px;
+        }
+
+        .time-group-content.year-content {
+            padding-left: 30px;
+        }
+
+        .group-count {
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .record-date {
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .records-content {
+            max-width: 900px;
+            max-height: 85vh;
+        }
+
+        .charts-container {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .chart-panel {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-panel h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .chart-toggle-btn {
+            background: rgba(116, 185, 255, 0.2);
+            border: 1px solid rgba(116, 185, 255, 0.4);
+            border-radius: 20px;
+            padding: 5px 12px;
+            color: #74b9ff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chart-toggle-btn:hover {
+            background: rgba(116, 185, 255, 0.3);
+            border-color: rgba(116, 185, 255, 0.6);
+        }
+
+        .hour-chart, .day-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 120px;
+            padding: 10px 0;
+        }
+
+        .hour-bar, .day-bar {
+            width: 15px;
+            background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s ease;
+            min-height: 5px;
+            position: relative;
+        }
+
+        .day-bar {
+            width: 35px;
+        }
+
+        .hour-bar:hover, .day-bar:hover {
+            background: linear-gradient(180deg, #00b894 0%, #00a085 100%);
+        }
+
+        .hour-labels, .day-labels {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 8px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .hour-label {
+            width: 15px;
+            text-align: center;
+        }
+
+        .day-label {
+            width: 35px;
+            text-align: center;
+        }
+
+        .line-chart-container {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+        }
+
+        .line-chart-container .chart-header h3 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .line-chart-wrapper {
+            overflow-x: auto;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .line-chart-wrapper canvas {
+            display: block;
+        }
+
+        .record-details {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 35px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .close-btn:hover {
+            color: #2d3436;
+            transform: rotate(90deg);
+        }
+
+        .no-records {
+            color: #b2bec3;
+            font-size: 18px;
+            padding: 50px;
+        }
+
+        .modal-btn-cancel {
+            background: linear-gradient(135deg, #b2bec3 0%, #636e72 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(178, 190, 195, 0.3);
+            margin-top: 10px;
+        }
+
+        .modal-btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(178, 190, 195, 0.4);
+        }
+
+        #soundBtn, #settingsBtn {
+            position: absolute;
+            left: 35px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        #soundBtn::before, #settingsBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        #soundBtn:hover, #settingsBtn:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #soundBtn:hover::before, #settingsBtn:hover::before {
+            left: 100%;
+        }
+
+        #soundBtn {
+            top: 85px;
+        }
+
+        #settingsBtn {
+            top: 140px;
+        }
+
+        #soundBtn:hover {
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #soundBtn.playing {
+            background: rgba(116, 185, 255, 0.15);
+            border-color: rgba(116, 185, 255, 0.4);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(116, 185, 255, 0.3);
+        }
+
+        .sound-modal-content {
+            max-width: 500px;
+        }
+
+        .settings-modal-content {
+            max-width: 600px;
+        }
+
+        .settings-content {
+            padding: 10px 0;
+        }
+
+        .setting-item {
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .setting-item label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #74b9ff;
+            margin-left: auto;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .volume-control label {
+            cursor: default;
+        }
+
+        .volume-slider {
+            flex: 1;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #74b9ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(116, 185, 255, 0.5);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #74b9ff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(116, 185, 255, 0.5);
+        }
+
+        #restReminderTime::-webkit-outer-spin-button,
+        #restReminderTime::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #restReminderTime {
+            -moz-appearance: textfield;
+        }
+
+        #screenWakeTime::-webkit-outer-spin-button,
+        #screenWakeTime::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #screenWakeTime {
+            -moz-appearance: textfield;
+        }
+
+        .volume-value {
+            width: 40px;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .setting-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .setting-buttons button {
+            flex: 1;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.95) !important;
+            min-width: auto;
+        }
+
+        .btn-export, .btn-import {
+            background: rgba(116, 185, 255, 0.2);
+            border-color: rgba(116, 185, 255, 0.4);
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        .btn-clear {
+            background: rgba(255, 107, 129, 0.2);
+            border-color: rgba(255, 107, 129, 0.4);
+        }
+
+        .sound-list {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sound-item {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            filter: brightness(0.95);
+            box-shadow: inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .sound-item:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            filter: brightness(1.05);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sound-item.active {
+            background: rgba(116, 185, 255, 0.35);
+            border-color: rgba(116, 185, 255, 0.8);
+            filter: brightness(1.15);
+            box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), inset 5px -5px 2px -4px rgba(255, 255, 255, 0.5), inset -5px 5px 2px -4px rgba(255, 255, 255, 0.5), 0 6px 16px rgba(116, 185, 255, 0.5);
+        }
+
+        .sound-item-name {
+            color: white;
+            font-weight: 500;
+        }
+
+        .sound-item-icon {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .sound-item.active .sound-item-icon {
+            opacity: 1;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { background: rgba(164, 176, 190, 0.25); border-color: rgba(164, 176, 190, 0.5); box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 6px 16px #a4b0be80; }
+            15% { background: rgba(255, 71, 87, 0.4); border-color: rgba(255, 71, 87, 0.8); box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.9), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.9), 0 6px 25px #ff475780, 0 0 30px #ff475750; }
+            30% { background: rgba(164, 176, 190, 0.25); border-color: rgba(164, 176, 190, 0.5); box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 6px 16px #a4b0be80; }
+            45% { background: rgba(255, 71, 87, 0.4); border-color: rgba(255, 71, 87, 0.8); box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.9), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.9), 0 6px 25px #ff475780, 0 0 30px #ff475750; }
+            60% { background: rgba(164, 176, 190, 0.25); border-color: rgba(164, 176, 190, 0.5); box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 6px 16px #a4b0be80; }
+        }
+
+        @keyframes heartbeatGlow {
+            0%, 100% { box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px #a4b0be50; }
+            15% { box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.9), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.9), 0 4px 20px #ff475780, 0 0 25px #ff475750; }
+            30% { box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px #a4b0be50; }
+            45% { box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.9), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.9), 0 4px 20px #ff475780, 0 0 25px #ff475750; }
+            60% { box-shadow: inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px #a4b0be50; }
+        }
+
+        .break-board {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 0 0 20px 20px;
+            padding: 25px 35px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            border: 3px solid #4a5568;
+            z-index: 50;
+            transition: top 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .break-board.show {
+            top: 0;
+        }
+
+        .break-board-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .break-board-time {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #10b981;
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .break-board-hint {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="break-board" id="breakBoard">
+        <div class="break-board-title">☕ 课间休息</div>
+        <div class="break-board-time" id="breakTime">00:00</div>
+        <div class="break-board-hint">点击「继续自习」返回学习</div>
+    </div>
+
+    <div class="parallax-container" id="parallaxContainer">
+        <div class="parallax-bg"></div>
+        <div class="parallax-bg-study" id="studyBg"></div>
+        <div class="parallax-bg-overlay" id="bgOverlay"></div>
+
+        <div class="glass-orb glass-orb-1"></div>
+        <div class="glass-orb glass-orb-2"></div>
+        <div class="glass-orb glass-orb-3"></div>
+        <div class="glass-orb glass-orb-4"></div>
+    </div>
+
+    <div class="current-time" id="currentTime">
+        <span id="currentTimeText">00:00<span class="seconds">:00</span></span>
+    </div>
+
+    <button id="fullscreenBtn" onclick="toggleFullscreen()" style="position:absolute;top:25px;left:35px;width:45px;height:45px;font-size:16px;background:rgba(0,0,0,0.35);color:white;border:1px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
+        <span id="fullscreenIcon">⛶</span>
+    </button>
+
+    <button id="exitFullscreenBtn" onclick="toggleFullscreen()" style="position:absolute;top:25px;left:35px;width:45px;height:45px;font-size:16px;background:rgba(0,0,0,0.35);color:white;border:1px solid rgba(255,255,255,0.12);border-radius:12px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;box-sizing:border-box;display:none;">
+        <span id="exitFullscreenIcon">◉</span>
+    </button>
+
+    <button class="stop-btn" id="stopBtn" onclick="stopStudy()">结束自习</button>
+
+    <button class="break-btn" id="breakBtn" onclick="toggleBreak()">⏸️ 课间休息</button>
+
+    <button id="soundBtn" onclick="showSoundModal()">🎵 环境音</button>
+    <button id="settingsBtn" onclick="showSettingsModal()">⚙️ 设置</button>
+
+    <div class="main-container">
+        <div class="button-group">
+            <button class="btn btn-start" id="startBtn" onclick="showStartModal()">开始自习</button>
+            <button class="btn btn-records" id="recordsBtn" onclick="showRecords()">过去自习记录</button>
+        </div>
+    </div>
+
+    <div class="study-display" id="studyDisplay">
+        <div class="study-time" id="studyTime">00:00:00</div>
+        <div class="study-status" id="studyStatus"></div>
+    </div>
+
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <h2>选择自习方式</h2>
+            <div class="modal-buttons" id="startOptions">
+                <button class="modal-btn modal-btn-direct" onclick="startStudy(0)">直接开始</button>
+                <button class="modal-btn modal-btn-timed" onclick="showTimeInput()">设定时间</button>
+            </div>
+            <div class="time-input-container" id="timeInputContainer">
+                <div class="time-input-box">
+                    <input type="number" id="timeInput" placeholder="请输入分钟数" min="1">
+                    <span class="time-unit">分钟</span>
+                </div>
+                <button onclick="startStudyWithTime()">确认开始</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal records-modal" id="recordsModal">
+        <div class="modal-content records-content">
+            <div class="modal-header">
+                <h2>自习记录</h2>
+                <button class="trash-btn" onclick="showTrashModal()">🗑️ 回收站</button>
+            </div>
+            <div class="total-time" id="totalTime">总自习时长: 00:00:00</div>
+            <div class="charts-container" id="chartsContainer">
+                <div class="chart-panel" id="hourChartPanel">
+                    <h3>今日时段分布</h3>
+                    <div class="hour-chart" id="hourChart"></div>
+                </div>
+                <div class="chart-panel" id="dayChartPanel">
+                    <div class="chart-header">
+                        <h3>自习时长对比</h3>
+                        <button class="chart-toggle-btn" id="chartToggleBtn" onclick="toggleChartMode()">📊 全部天数</button>
+                    </div>
+                    <div class="day-chart" id="dayChart"></div>
+                </div>
+            </div>
+            <div class="line-chart-container" id="lineChartContainer" style="display: none;">
+                <div class="chart-header">
+                    <h3>全部自习时长趋势</h3>
+                    <button class="chart-toggle-btn" onclick="toggleChartMode()">📊 近6天</button>
+                </div>
+                <div class="line-chart-wrapper" id="lineChartWrapper">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+            <div class="records-list" id="recordsList"></div>
+        </div>
+    </div>
+
+    <div class="modal trash-modal" id="trashModal">
+        <div class="modal-content trash-content">
+            <div class="modal-header">
+                <h2>🗑️ 回收站</h2>
+                <button class="empty-trash-btn" onclick="emptyTrash()">清空回收站</button>
+            </div>
+            <div class="records-list" id="trashList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="soundModal">
+        <div class="modal-content sound-modal-content">
+            <h2>选择背景音效</h2>
+            <div class="sound-list" id="soundList"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content settings-modal-content">
+            <h2>⚙️ 设置</h2>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <div class="volume-control">
+                        <label>🔊 音量</label>
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50">
+                        <span class="volume-value" id="volumeValue">50%</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <span>进入自习时自动全屏</span>
+                        <input type="checkbox" id="autoFullscreen">
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <span>学习提醒休息时间</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="restReminderTime" min="5" max="120" value="50" style="width: 60px; padding: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; text-align: center;">
+                            <span style="color: rgba(255,255,255,0.7); font-size: 14px;">分钟</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label>
+                        <span>保持屏幕常亮间隔</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="number" id="screenWakeTime" min="1" max="30" value="3" style="width: 60px; padding: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: white; text-align: center;">
+                            <span style="color: rgba(255,255,255,0.7); font-size: 14px;">分钟</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-buttons">
+                        <button class="btn btn-export" onclick="exportRecords()">📥 导出记录</button>
+                        <button class="btn btn-import" onclick="importRecords()">📤 导入记录</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+
+    <audio id="bgMusic" loop></audio>
+    <audio id="wakeAudio" loop muted></audio>
+
+    <script>
+        let isStudying = false;
+        let studyStartTime = null;
+        let studyDuration = 0;
+        let targetTime = 0;
+        let timerInterval = null;
+        let wakeLockInterval = null;
+        let wakeLock = null;
+        let records = [];
+        let showAllDays = false;
+
+        const soundFiles = [
+            { name: '雷雨声', file: '世界公认最佳放松雷雨声, 树林自然雨声睡眠音乐，白噪音-雨&雨声.mp3', color: '#74b9ff' },
+            { name: '森林午夜', file: '大自然的声音_ 森林在午夜-Jamie Llewellyn.mp3', color: '#2ed573' },
+            { name: '冷气声', file: '白噪音 冷气1-睡眠宝宝贵族音乐.mp3', color: '#a4b0be' },
+            { name: '风+心跳', file: '白噪音 风+心跳1-睡眠宝宝贵族音乐.mp3', color: '#a4b0be' },
+            { name: '树林草原', file: '白噪音（树林，草原，水声）-白噪音制造器.mp3', color: '#2ed573' },
+            { name: '篝火风雨', file: '篝火和風雨交加的夜晚-自然的聲音.mp3', color: '#ff6b81' },
+            { name: '雨声', file: '雨声-X303FFF.mp3', color: '#70a1ff' }
+        ];
+
+        let currentSoundIndex = -1;
+
+        function mergeShortRecords(records) {
+            if (records.length === 0) return [];
+
+            const sortedRecords = [...records].sort((a, b) => {
+                const dateCompare = a.date.localeCompare(b.date);
+                if (dateCompare !== 0) return dateCompare;
+                return a.startTime.localeCompare(b.startTime);
+            });
+
+            const merged = [];
+            let currentGroup = [sortedRecords[0]];
+
+            for (let i = 1; i < sortedRecords.length; i++) {
+                const current = sortedRecords[i];
+                const last = currentGroup[currentGroup.length - 1];
+
+                const isShortDuration = current.duration < 600;
+                const isSameDate = current.date === last.date;
+                
+                if (isSameDate && isShortDuration && last.duration < 600) {
+                    currentGroup.push(current);
+                } else {
+                    merged.push(currentGroup);
+                    currentGroup = [current];
+                }
+            }
+            merged.push(currentGroup);
+
+            return merged;
+        }
+
+        function loadRecords() {
+            const saved = localStorage.getItem('studyRecords');
+            records = saved ? JSON.parse(saved) : [];
+        }
+
+        function saveRecords() {
+            localStorage.setItem('studyRecords', JSON.stringify(records));
+        }
+
+        function saveStudyState() {
+            const state = {
+                isStudying: isStudying,
+                studyStartTime: studyStartTime,
+                targetTime: targetTime,
+                isPaused: isPaused,
+                totalPauseTime: totalPauseTime,
+                pauseStartTime: pauseStartTime
+            };
+            localStorage.setItem('studyState', JSON.stringify(state));
+        }
+
+        function loadStudyState() {
+            const saved = localStorage.getItem('studyState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                if (state.isStudying && state.studyStartTime) {
+                    isStudying = true;
+                    studyStartTime = state.studyStartTime;
+                    targetTime = state.targetTime;
+                    isPaused = state.isPaused || false;
+                    totalPauseTime = state.totalPauseTime || 0;
+                    pauseStartTime = state.pauseStartTime || 0;
+                    lastRestReminderMinute = 0;
+                    
+                    let currentPauseTime = 0;
+                    if (isPaused && pauseStartTime > 0) {
+                        currentPauseTime = Date.now() - pauseStartTime;
+                        // 如果暂停时间超过24小时，认为是旧状态，重置为0
+                        if (currentPauseTime > 24 * 60 * 60 * 1000) {
+                            currentPauseTime = 0;
+                            isPaused = false;
+                            pauseStartTime = 0;
+                        }
+                    }
+                    studyDuration = Math.max(0, Math.floor((Date.now() - studyStartTime - totalPauseTime - currentPauseTime) / 1000));
+                    
+                    document.getElementById('startBtn').style.display = 'none';
+                    document.getElementById('recordsBtn').style.display = 'none';
+                    document.getElementById('stopBtn').classList.add('visible');
+                    document.getElementById('breakBtn').classList.add('visible');
+                    document.getElementById('studyDisplay').style.display = 'block';
+                    document.getElementById('studyTime').innerHTML = formatTime(studyDuration);
+                    
+                    if (targetTime > 0) {
+                        document.getElementById('studyStatus').innerHTML = `目标: ${formatTime(targetTime)}`;
+                    } else {
+                        document.getElementById('studyStatus').textContent = '';
+                    }
+                    
+                    if (!isPaused) {
+                        timerInterval = setInterval(updateStudyTime, 1000);
+                        startWakeLockTimer();
+                    } else {
+                        document.getElementById('breakBtn').innerHTML = '▶️ 继续自习';
+                        document.getElementById('breakBtn').classList.add('paused');
+                        document.getElementById('studyStatus').textContent = '课间休息中...';
+                    }
+                }
+            }
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeText = document.getElementById('currentTimeText');
+            if (timeText) {
+                timeText.innerHTML = `${hours}:${minutes}<span class="seconds">:${seconds}</span>`;
+            }
+        }
+
+        function formatTime(totalSeconds, withHTML = true) {
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            if (withHTML) {
+                return `${hours}:${minutes}<span class="seconds">:${seconds}</span>`;
+            }
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function updateStudyTime() {
+            if (!isStudying) return;
+
+            studyDuration = Math.floor((Date.now() - studyStartTime - totalPauseTime) / 1000);
+            document.getElementById('studyTime').innerHTML = formatTime(studyDuration);
+
+            if (targetTime > 0 && studyDuration >= targetTime) {
+                alert('恭喜！你已完成设定的学习时间！');
+                stopStudy();
+            }
+
+            const minutes = Math.floor(studyDuration / 60);
+            const settings = getSettings();
+            const restTime = settings.restReminderTime || 50;
+            if (minutes > 0 && minutes % restTime === 0 && studyDuration % 60 === 0 && minutes !== lastRestReminderMinute) {
+                lastRestReminderMinute = minutes;
+                showRestReminder(restTime);
+            }
+            
+            if (studyDuration % 5 === 0) {
+                saveStudyState();
+            }
+        }
+
+        function showRestReminder(restTime = 50) {
+            const reminder = document.createElement('div');
+            reminder.className = 'rest-reminder';
+            reminder.innerHTML = `
+                <div class="rest-reminder-content">
+                    <div class="rest-reminder-icon">☕</div>
+                    <div class="rest-reminder-text">学习提醒</div>
+                    <div class="rest-reminder-message">您已连续学习${restTime}分钟，建议休息一下！</div>
+                    <button class="rest-reminder-btn" onclick="this.parentElement.parentElement.remove()">知道了</button>
+                </div>
+            `;
+            document.body.appendChild(reminder);
+            setTimeout(() => reminder.classList.add('show'), 10);
+        }
+
+        function showStartModal() {
+            document.getElementById('startModal').classList.add('active');
+            document.getElementById('startOptions').style.display = 'flex';
+            document.getElementById('timeInputContainer').classList.remove('active');
+            document.getElementById('timeInput').value = '';
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('recordsBtn').style.display = 'none';
+        }
+
+        function showTimeInput() {
+            document.getElementById('startOptions').style.display = 'none';
+            document.getElementById('timeInputContainer').classList.add('active');
+            document.getElementById('timeInput').focus();
+        }
+
+        function startStudy(time) {
+            isStudying = true;
+            studyStartTime = Date.now();
+            studyDuration = 0;
+            totalPauseTime = 0;
+            lastRestReminderMinute = 0;
+            targetTime = time;
+            isPaused = false;
+            pauseStartTime = 0;
+
+            document.getElementById('startModal').classList.remove('active');
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('recordsBtn').style.display = 'none';
+            document.getElementById('stopBtn').classList.add('visible');
+            document.getElementById('breakBtn').classList.add('visible');
+            document.getElementById('studyDisplay').style.display = 'block';
+
+            const studyBg = document.getElementById('studyBg');
+            studyBg.classList.add('active');
+
+            const bgOverlay = document.getElementById('bgOverlay');
+            bgOverlay.classList.remove('active');
+            bgOverlay.style.opacity = '';
+            bgOverlay.style.transition = '';
+
+            document.getElementById('breakBtn').innerHTML = '⏸️ 课间休息';
+            document.getElementById('breakBtn').classList.remove('paused');
+
+            if (targetTime > 0) {
+                document.getElementById('studyStatus').innerHTML = `目标: ${formatTime(targetTime)}`;
+            } else {
+                document.getElementById('studyStatus').textContent = '';
+            }
+
+            timerInterval = setInterval(updateStudyTime, 1000);
+            startWakeLockTimer();
+            
+            saveStudyState();
+        }
+
+        function startStudyWithTime() {
+            const minutes = parseInt(document.getElementById('timeInput').value);
+            if (isNaN(minutes) || minutes <= 0) {
+                alert('请输入有效的时间（大于0）');
+                return;
+            }
+            startStudy(minutes * 60);
+        }
+
+        function stopStudy() {
+            if (!isStudying) return;
+
+            isStudying = false;
+            clearInterval(timerInterval);
+            clearInterval(breakTimerInterval);
+            document.getElementById('breakBoard').classList.remove('show');
+
+            const record = {
+                id: Date.now(),
+                date: new Date(studyStartTime).toLocaleDateString('zh-CN'),
+                startTime: new Date(studyStartTime).toLocaleTimeString('zh-CN'),
+                endTime: new Date().toLocaleTimeString('zh-CN'),
+                duration: studyDuration
+            };
+
+            records.push(record);
+            saveRecords();
+            localStorage.removeItem('studyState');
+
+            document.getElementById('stopBtn').classList.remove('visible');
+            document.getElementById('breakBtn').classList.remove('visible');
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('recordsBtn').style.display = 'block';
+            document.getElementById('studyDisplay').style.display = 'none';
+            document.getElementById('fullscreenBtn').style.display = 'flex';
+
+            const bgOverlay = document.getElementById('bgOverlay');
+            const studyBg = document.getElementById('studyBg');
+
+            if (isPaused) {
+                studyBg.classList.remove('active');
+                bgOverlay.style.opacity = '1';
+                bgOverlay.style.transition = 'none';
+                setTimeout(() => {
+                    bgOverlay.style.transition = '';
+                }, 50);
+            } else {
+                studyBg.classList.remove('active');
+                bgOverlay.classList.remove('active');
+            }
+
+            if (currentSoundIndex !== -1) {
+                document.getElementById('bgMusic').pause();
+                document.getElementById('bgMusic').currentTime = 0;
+                currentSoundIndex = -1;
+                document.getElementById('soundBtn').classList.remove('playing');
+                document.getElementById('soundBtn').style.animation = 'none';
+                document.getElementById('soundBtn').style.background = 'rgba(255, 255, 255, 0.08)';
+                document.getElementById('soundBtn').style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                document.getElementById('soundBtn').style.boxShadow = 'inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15)';
+            }
+
+            removeRaindrops();
+            removeFireEffects();
+            stopWakeLock();
+
+            alert(`本次自习时长: ${formatTime(studyDuration, false)}`);
+        }
+
+        let isPaused = false;
+        let pauseStartTime = 0;
+        let totalPauseTime = 0;
+        let lastRestReminderMinute = 0;
+        let breakTimerInterval = null;
+
+        function updateBreakTime() {
+            const breakSeconds = Math.floor((Date.now() - pauseStartTime) / 1000);
+            const minutes = String(Math.floor(breakSeconds / 60)).padStart(2, '0');
+            const seconds = String(breakSeconds % 60).padStart(2, '0');
+            document.getElementById('breakTime').textContent = `${minutes}:${seconds}`;
+        }
+
+        function toggleBreak() {
+            const breakBtn = document.getElementById('breakBtn');
+            const bgMusic = document.getElementById('bgMusic');
+            const breakBoard = document.getElementById('breakBoard');
+            const bgOverlay = document.getElementById('bgOverlay');
+            
+            if (!isPaused) {
+                isPaused = true;
+                pauseStartTime = Date.now();
+                clearInterval(timerInterval);
+                if (currentSoundIndex !== -1) {
+                    bgMusic.pause();
+                }
+                breakBtn.innerHTML = '▶️ 继续自习';
+                breakBtn.classList.add('paused');
+                document.getElementById('studyStatus').textContent = '课间休息中...';
+                
+                bgOverlay.style.backgroundImage = "url('微信图片_20260523235315_1195_12.png')";
+                bgOverlay.style.transform = `translate(${currentX * 6}px, ${currentY * 3}px)`;
+                bgOverlay.classList.add('active');
+                
+                breakBoard.classList.add('show');
+                document.getElementById('breakTime').textContent = '00:00';
+                breakTimerInterval = setInterval(updateBreakTime, 1000);
+            } else {
+                isPaused = false;
+                const pauseDuration = Date.now() - pauseStartTime;
+                totalPauseTime += pauseDuration;
+                if (pauseDuration > 5 * 60 * 1000) {
+                    lastRestReminderMinute = 0;
+                }
+                breakBtn.innerHTML = '⏸️ 课间休息';
+                breakBtn.classList.remove('paused');
+                document.getElementById('studyStatus').textContent = '';
+                timerInterval = setInterval(updateStudyTime, 1000);
+                if (currentSoundIndex !== -1) {
+                    bgMusic.play();
+                }
+                
+                bgOverlay.classList.remove('active');
+                
+                breakBoard.classList.remove('show');
+                clearInterval(breakTimerInterval);
+            }
+            saveStudyState();
+        }
+
+        function showRecords() {
+            loadRecords();
+
+            const totalDuration = records.reduce((sum, record) => sum + record.duration, 0);
+            document.getElementById('totalTime').innerHTML = `总自习时长: ${formatTime(totalDuration)}`;
+
+            showAllDays = false;
+            document.getElementById('chartsContainer').style.display = 'flex';
+            document.getElementById('lineChartContainer').style.display = 'none';
+
+            drawHourChart();
+            drawDayChart();
+
+            const recordsList = document.getElementById('recordsList');
+            recordsList.innerHTML = '';
+
+            if (records.length === 0) {
+                recordsList.innerHTML = '<div class="no-records">暂无自习记录</div>';
+            } else {
+                const groupedRecords = groupRecordsByTime(records);
+                renderGroupedRecords(groupedRecords, recordsList);
+            }
+
+            document.getElementById('recordsModal').classList.add('active');
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('recordsBtn').style.display = 'none';
+        }
+
+        function groupRecordsByTime(records) {
+            const now = new Date();
+            const today = now.toLocaleDateString('zh-CN');
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+
+            const sortedRecords = [...records].sort((a, b) => {
+                const dateCompare = b.date.localeCompare(a.date);
+                if (dateCompare !== 0) return dateCompare;
+                return b.startTime.localeCompare(a.startTime);
+            });
+
+            const groups = {
+                today: [],
+                recentDays: {},
+                recentMonths: {},
+                years: {}
+            };
+
+            sortedRecords.forEach(record => {
+                const recordDate = new Date(record.date.replace(/\//g, '-'));
+                
+                if (record.date === today) {
+                    groups.today.push(record);
+                } else if (recordDate >= thirtyDaysAgo) {
+                    if (!groups.recentDays[record.date]) {
+                        groups.recentDays[record.date] = [];
+                    }
+                    groups.recentDays[record.date].push(record);
+                } else if (recordDate >= oneYearAgo) {
+                    const monthKey = record.date.substring(0, 7);
+                    if (!groups.recentMonths[monthKey]) {
+                        groups.recentMonths[monthKey] = {};
+                    }
+                    if (!groups.recentMonths[monthKey][record.date]) {
+                        groups.recentMonths[monthKey][record.date] = [];
+                    }
+                    groups.recentMonths[monthKey][record.date].push(record);
+                } else {
+                    const yearKey = record.date.substring(0, 4);
+                    if (!groups.years[yearKey]) {
+                        groups.years[yearKey] = {};
+                    }
+                    const monthKey = record.date.substring(0, 7);
+                    if (!groups.years[yearKey][monthKey]) {
+                        groups.years[yearKey][monthKey] = {};
+                    }
+                    if (!groups.years[yearKey][monthKey][record.date]) {
+                        groups.years[yearKey][monthKey][record.date] = [];
+                    }
+                    groups.years[yearKey][monthKey][record.date].push(record);
+                }
+            });
+
+            return groups;
+        }
+
+        function renderGroupedRecords(groups, container) {
+            if (groups.today.length > 0) {
+                const todayDiv = document.createElement('div');
+                todayDiv.className = 'time-group';
+                
+                const header = document.createElement('div');
+                header.className = 'time-group-header';
+                header.innerHTML = `📅 今天 <span class="group-count">${groups.today.length}条</span>`;
+                todayDiv.appendChild(header);
+                
+                const content = document.createElement('div');
+                content.className = 'time-group-content';
+                renderDayRecords(groups.today, content);
+                todayDiv.appendChild(content);
+                
+                container.appendChild(todayDiv);
+            }
+
+            if (Object.keys(groups.recentDays).length > 0) {
+                Object.keys(groups.recentDays).forEach(date => {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'time-group collapsible';
+                    
+                    const header = document.createElement('div');
+                    header.className = 'time-group-header';
+                    const dayRecords = groups.recentDays[date];
+                    const dayDuration = dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                    header.innerHTML = `📅 ${date} <span class="group-count">${dayRecords.length}条 | ${formatTime(dayDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                    dayDiv.appendChild(header);
+                    
+                    const content = document.createElement('div');
+                    content.className = 'time-group-content';
+                    renderDayRecords(dayRecords, content);
+                    dayDiv.appendChild(content);
+                    
+                    header.addEventListener('click', () => toggleCollapse(dayDiv));
+                    container.appendChild(dayDiv);
+                });
+            }
+
+            if (Object.keys(groups.recentMonths).length > 0) {
+                Object.keys(groups.recentMonths).reverse().forEach(month => {
+                    const monthDiv = document.createElement('div');
+                    monthDiv.className = 'time-group collapsible';
+                    
+                    const header = document.createElement('div');
+                    header.className = 'time-group-header';
+                    const monthData = groups.recentMonths[month];
+                    let monthDuration = 0;
+                    let monthCount = 0;
+                    Object.values(monthData).forEach(dayRecords => {
+                        monthDuration += dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                        monthCount += dayRecords.length;
+                    });
+                    header.innerHTML = `📆 ${month}月 <span class="group-count">${monthCount}条 | ${formatTime(monthDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                    monthDiv.appendChild(header);
+                    
+                    const content = document.createElement('div');
+                    content.className = 'time-group-content month-content';
+                    
+                    Object.keys(monthData).forEach(date => {
+                        const dayDiv = document.createElement('div');
+                        dayDiv.className = 'time-group collapsible';
+                        
+                        const dayHeader = document.createElement('div');
+                        dayHeader.className = 'time-group-header day-header';
+                        const dayRecords = monthData[date];
+                        const dayDuration = dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                        dayHeader.innerHTML = `  └─ ${date} <span class="group-count">${dayRecords.length}条 | ${formatTime(dayDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                        dayDiv.appendChild(dayHeader);
+                        
+                        const dayContent = document.createElement('div');
+                        dayContent.className = 'time-group-content';
+                        renderDayRecords(dayRecords, dayContent);
+                        dayDiv.appendChild(dayContent);
+                        
+                        dayHeader.addEventListener('click', () => toggleCollapse(dayDiv));
+                        content.appendChild(dayDiv);
+                    });
+                    
+                    monthDiv.appendChild(content);
+                    header.addEventListener('click', () => toggleCollapse(monthDiv));
+                    container.appendChild(monthDiv);
+                });
+            }
+
+            if (Object.keys(groups.years).length > 0) {
+                Object.keys(groups.years).reverse().forEach(year => {
+                    const yearDiv = document.createElement('div');
+                    yearDiv.className = 'time-group collapsible';
+                    
+                    const header = document.createElement('div');
+                    header.className = 'time-group-header';
+                    const yearData = groups.years[year];
+                    let yearDuration = 0;
+                    let yearCount = 0;
+                    Object.values(yearData).forEach(monthData => {
+                        Object.values(monthData).forEach(dayRecords => {
+                            yearDuration += dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                            yearCount += dayRecords.length;
+                        });
+                    });
+                    header.innerHTML = `📅 ${year}年 <span class="group-count">${yearCount}条 | ${formatTime(yearDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                    yearDiv.appendChild(header);
+                    
+                    const content = document.createElement('div');
+                    content.className = 'time-group-content year-content';
+                    
+                    Object.keys(yearData).reverse().forEach(month => {
+                        const monthDiv = document.createElement('div');
+                        monthDiv.className = 'time-group collapsible';
+                        
+                        const monthHeader = document.createElement('div');
+                        monthHeader.className = 'time-group-header month-header';
+                        const monthData = yearData[month];
+                        let monthDuration = 0;
+                        let monthCount = 0;
+                        Object.values(monthData).forEach(dayRecords => {
+                            monthDuration += dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                            monthCount += dayRecords.length;
+                        });
+                        monthHeader.innerHTML = `  └─ ${month}月 <span class="group-count">${monthCount}条 | ${formatTime(monthDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                        monthDiv.appendChild(monthHeader);
+                        
+                        const monthContent = document.createElement('div');
+                        monthContent.className = 'time-group-content month-content';
+                        
+                        Object.keys(monthData).forEach(date => {
+                            const dayDiv = document.createElement('div');
+                            dayDiv.className = 'time-group collapsible';
+                            
+                            const dayHeader = document.createElement('div');
+                            dayHeader.className = 'time-group-header day-header';
+                            const dayRecords = monthData[date];
+                            const dayDuration = dayRecords.reduce((sum, r) => sum + r.duration, 0);
+                            dayHeader.innerHTML = `    └─ ${date} <span class="group-count">${dayRecords.length}条 | ${formatTime(dayDuration, false)}</span> <span class="expand-icon">▼</span>`;
+                            dayDiv.appendChild(dayHeader);
+                            
+                            const dayContent = document.createElement('div');
+                            dayContent.className = 'time-group-content';
+                            renderDayRecords(dayRecords, dayContent);
+                            dayDiv.appendChild(dayContent);
+                            
+                            dayHeader.addEventListener('click', () => toggleCollapse(dayDiv));
+                            monthContent.appendChild(dayDiv);
+                        });
+                        
+                        monthDiv.appendChild(monthContent);
+                        monthHeader.addEventListener('click', () => toggleCollapse(monthDiv));
+                        content.appendChild(monthDiv);
+                    });
+                    
+                    yearDiv.appendChild(content);
+                    header.addEventListener('click', () => toggleCollapse(yearDiv));
+                    container.appendChild(yearDiv);
+                });
+            }
+        }
+
+        function renderDayRecords(dayRecords, container) {
+            const mergedRecords = mergeShortRecordsForDay(dayRecords);
+            mergedRecords.forEach((group) => {
+                const item = document.createElement('div');
+                item.className = 'record-item';
+                
+                if (group.length > 1) {
+                    const firstRecord = group[0];
+                    const lastRecord = group[group.length - 1];
+                    const totalDuration = group.reduce((sum, r) => sum + r.duration, 0);
+                    
+                    item.innerHTML = `
+                        <div class="record-details">${firstRecord.startTime} - ${lastRecord.endTime} | 总时长: ${formatTime(totalDuration, false)} <span class="expand-icon">▼</span></div>
+                        <div class="record-subitems" style="display: none;">
+                            ${group.map((r, i) => `<div class="record-subitem">${i + 1}. ${r.startTime} - ${r.endTime} | ${formatTime(r.duration, false)}</div>`).join('')}
+                        </div>
+                        <button class="delete-btn" onclick="deleteRecords([${group.map(r => r.id).join(',')}])">🗑️</button>
+                    `;
+                    
+                    item.querySelector('.record-details').addEventListener('click', () => {
+                        const subitems = item.querySelector('.record-subitems');
+                        const icon = item.querySelector('.expand-icon');
+                        if (subitems.style.display === 'none') {
+                            subitems.style.display = 'block';
+                            icon.textContent = '▲';
+                        } else {
+                            subitems.style.display = 'none';
+                            icon.textContent = '▼';
+                        }
+                    });
+                } else {
+                    const record = group[0];
+                    item.innerHTML = `
+                        <div class="record-details">${record.startTime} - ${record.endTime} | 时长: ${formatTime(record.duration, false)}</div>
+                        <button class="delete-btn" onclick="deleteRecords([${record.id}])">🗑️</button>
+                    `;
+                }
+                
+                container.appendChild(item);
+            });
+        }
+
+        function deleteRecords(recordIds) {
+            if (confirm('确定要将这些记录移到回收站吗？')) {
+                const deletedRecords = records.filter(r => recordIds.includes(r.id));
+                records = records.filter(r => !recordIds.includes(r.id));
+                saveRecords();
+                
+                const trashRecords = JSON.parse(localStorage.getItem('trashRecords') || '[]');
+                deletedRecords.forEach(r => {
+                    r.deletedAt = Date.now();
+                });
+                localStorage.setItem('trashRecords', JSON.stringify([...trashRecords, ...deletedRecords]));
+                
+                showRecords();
+            }
+        }
+
+        function showTrashModal() {
+            const trashRecords = JSON.parse(localStorage.getItem('trashRecords') || '[]');
+            const trashList = document.getElementById('trashList');
+            trashList.innerHTML = '';
+            
+            if (trashRecords.length === 0) {
+                trashList.innerHTML = '<div class="no-records">回收站为空</div>';
+            } else {
+                trashRecords.forEach((record, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'record-item';
+                    item.innerHTML = `
+                        <div class="record-details">${record.date} ${record.startTime} - ${record.endTime} | ${formatTime(record.duration, false)}</div>
+                        <div class="trash-actions">
+                            <button class="restore-btn" onclick="restoreRecord(${index})">🔄 恢复</button>
+                        </div>
+                    `;
+                    trashList.appendChild(item);
+                });
+            }
+            
+            document.getElementById('trashModal').classList.add('active');
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('recordsBtn').style.display = 'none';
+        }
+
+        function restoreRecord(index) {
+            const trashRecords = JSON.parse(localStorage.getItem('trashRecords') || '[]');
+            const record = trashRecords.splice(index, 1)[0];
+            delete record.deletedAt;
+            records.push(record);
+            saveRecords();
+            localStorage.setItem('trashRecords', JSON.stringify(trashRecords));
+            showTrashModal();
+        }
+
+        function emptyTrash() {
+            if (confirm('确定要清空回收站吗？此操作不可恢复！')) {
+                localStorage.removeItem('trashRecords');
+                showTrashModal();
+            }
+        }
+
+        function mergeShortRecordsForDay(dayRecords) {
+            if (dayRecords.length === 0) return [];
+
+            const sorted = [...dayRecords].sort((a, b) => a.startTime.localeCompare(b.startTime));
+            const merged = [];
+            let currentGroup = [sorted[0]];
+
+            for (let i = 1; i < sorted.length; i++) {
+                const current = sorted[i];
+                const last = currentGroup[currentGroup.length - 1];
+                if (current.duration < 600 && last.duration < 600) {
+                    currentGroup.push(current);
+                } else {
+                    merged.push(currentGroup);
+                    currentGroup = [current];
+                }
+            }
+            merged.push(currentGroup);
+            return merged;
+        }
+
+        function toggleCollapse(element) {
+            const content = element.querySelector('.time-group-content');
+            const icon = element.querySelector('.expand-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            }
+        }
+
+        function drawHourChart() {
+            const today = new Date().toLocaleDateString('zh-CN');
+            const todayRecords = records.filter(r => r.date === today);
+
+            const hourMinutes = new Array(24).fill(0);
+
+            todayRecords.forEach(record => {
+                const startHour = parseInt(record.startTime.split(':')[0]);
+                const startMin = parseInt(record.startTime.split(':')[1]);
+                const endHour = parseInt(record.endTime.split(':')[0]);
+                const endMin = parseInt(record.endTime.split(':')[1]);
+                
+                const actualDuration = record.duration;
+                const totalMinutes = (endHour - startHour) * 60 + endMin - startMin;
+                
+                if (totalMinutes <= 0) return;
+                
+                const efficiency = actualDuration / 60 / totalMinutes;
+
+                if (startHour === endHour) {
+                    hourMinutes[startHour] += Math.round((endMin - startMin) * efficiency);
+                } else {
+                    hourMinutes[startHour] += Math.round((60 - startMin) * efficiency);
+                    for (let h = startHour + 1; h < endHour; h++) {
+                        hourMinutes[h] += Math.round(60 * efficiency);
+                    }
+                    hourMinutes[endHour] += Math.round(endMin * efficiency);
+                }
+            });
+
+            const maxMinutes = Math.max(...hourMinutes, 1);
+            const chart = document.getElementById('hourChart');
+            chart.innerHTML = '';
+
+            for (let i = 0; i < 24; i++) {
+                const height = (hourMinutes[i] / maxMinutes) * 100;
+                const bar = document.createElement('div');
+                bar.className = 'hour-bar';
+                bar.style.height = `${Math.max(height, 2)}%`;
+                bar.title = `${i}:00 - ${hourMinutes[i]}分钟`;
+                chart.appendChild(bar);
+            }
+
+            const existingHourLabels = chart.parentNode.querySelector('.hour-labels');
+            if (existingHourLabels) {
+                existingHourLabels.remove();
+            }
+            
+            const labels = document.createElement('div');
+            labels.className = 'hour-labels';
+            for (let i = 0; i < 24; i += 2) {
+                const label = document.createElement('div');
+                label.className = 'hour-label';
+                label.textContent = i;
+                labels.appendChild(label);
+            }
+            chart.parentNode.appendChild(labels);
+        }
+
+        function drawDayChart() {
+            const dayMinutes = [];
+            const dayLabels = [];
+
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toLocaleDateString('zh-CN');
+                dayLabels.push(dateStr.split('/').slice(1).join('/'));
+
+                const dayRecords = records.filter(r => r.date === dateStr);
+                const totalMinutes = dayRecords.reduce((sum, r) => sum + Math.floor(r.duration / 60), 0);
+                dayMinutes.push(totalMinutes);
+            }
+
+            const maxMinutes = Math.max(...dayMinutes, 1);
+            const chart = document.getElementById('dayChart');
+            chart.innerHTML = '';
+
+            dayMinutes.forEach((minutes, index) => {
+                const height = (minutes / maxMinutes) * 100;
+                const bar = document.createElement('div');
+                bar.className = 'day-bar';
+                bar.style.height = `${Math.max(height, 2)}%`;
+                bar.title = `${dayLabels[index]}: ${minutes}分钟`;
+                chart.appendChild(bar);
+            });
+
+            const existingDayLabels = chart.parentNode.querySelector('.day-labels');
+            if (existingDayLabels) {
+                existingDayLabels.remove();
+            }
+            
+            const labels = document.createElement('div');
+            labels.className = 'day-labels';
+            dayLabels.forEach(label => {
+                const lbl = document.createElement('div');
+                lbl.className = 'day-label';
+                lbl.textContent = label;
+                labels.appendChild(lbl);
+            });
+            chart.parentNode.appendChild(labels);
+        }
+
+        function drawLineChart() {
+            const dateMap = {};
+            records.forEach(r => {
+                if (!dateMap[r.date]) {
+                    dateMap[r.date] = 0;
+                }
+                dateMap[r.date] += Math.floor(r.duration / 60);
+            });
+
+            const sortedDates = Object.keys(dateMap).sort();
+            if (sortedDates.length === 0) return;
+
+            const firstDate = new Date(sortedDates[0].replace(/\//g, '-'));
+            const lastDate = new Date();
+            
+            const allDates = [];
+            const allMinutes = [];
+            
+            const currentDate = new Date(firstDate);
+            while (currentDate <= lastDate) {
+                const dateStr = currentDate.toLocaleDateString('zh-CN');
+                allDates.push(dateStr.split('/').slice(1).join('/'));
+                allMinutes.push(dateMap[dateStr] || 0);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const container = document.getElementById('lineChartContainer');
+            const containerWidth = container.offsetWidth - 36;
+            
+            const canvas = document.getElementById('lineChart');
+            const ctx = canvas.getContext('2d');
+            
+            const padding = { top: 30, right: 30, bottom: 40, left: 50 };
+            const chartWidth = containerWidth;
+            const chartHeight = 200;
+            
+            canvas.width = chartWidth;
+            canvas.height = chartHeight;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const maxMinutes = Math.max(...allMinutes, 1);
+            const graphWidth = chartWidth - padding.left - padding.right;
+            const graphHeight = chartHeight - padding.top - padding.bottom;
+
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 4; i++) {
+                const y = padding.top + (graphHeight / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(chartWidth - padding.right, y);
+                ctx.stroke();
+                
+                const value = Math.round(maxMinutes * (1 - i / 4));
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.font = '11px sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(value + '分', padding.left - 8, y + 4);
+            }
+
+            const stepX = graphWidth / (allDates.length - 1 || 1);
+            
+            ctx.beginPath();
+            ctx.strokeStyle = '#74b9ff';
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            
+            allMinutes.forEach((minutes, index) => {
+                const x = padding.left + index * stepX;
+                const y = padding.top + graphHeight - (minutes / maxMinutes) * graphHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'rgba(116, 185, 255, 0.2)';
+            allMinutes.forEach((minutes, index) => {
+                const x = padding.left + index * stepX;
+                const y = padding.top + graphHeight - (minutes / maxMinutes) * graphHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.lineTo(padding.left + (allMinutes.length - 1) * stepX, padding.top + graphHeight);
+            ctx.lineTo(padding.left, padding.top + graphHeight);
+            ctx.closePath();
+            ctx.fill();
+
+            const points = [];
+            allMinutes.forEach((minutes, index) => {
+                const x = padding.left + index * stepX;
+                const y = padding.top + graphHeight - (minutes / maxMinutes) * graphHeight;
+                
+                points.push({ x, y, date: allDates[index], minutes });
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = '#74b9ff';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            const labelStep = Math.max(1, Math.floor(allDates.length / 8));
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.font = '10px sans-serif';
+            ctx.textAlign = 'center';
+            allDates.forEach((date, index) => {
+                if (index % labelStep === 0 || index === allDates.length - 1) {
+                    const x = padding.left + index * stepX;
+                    ctx.fillText(date, x, chartHeight - 10);
+                }
+            });
+
+            let tooltip = document.getElementById('lineChartTooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'lineChartTooltip';
+                tooltip.style.cssText = `
+                    position: absolute;
+                    background: rgba(0, 0, 0, 0.85);
+                    border: 1px solid rgba(116, 185, 255, 0.5);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    color: white;
+                    font-size: 12px;
+                    pointer-events: none;
+                    z-index: 100;
+                    display: none;
+                    white-space: nowrap;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                `;
+                document.getElementById('lineChartWrapper').appendChild(tooltip);
+            }
+
+            canvas.onmousemove = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                let closestPoint = null;
+                let minDistance = Infinity;
+                
+                points.forEach(point => {
+                    const distance = Math.sqrt(Math.pow(point.x - mouseX, 2) + Math.pow(point.y - mouseY, 2));
+                    if (distance < minDistance && distance < 20) {
+                        minDistance = distance;
+                        closestPoint = point;
+                    }
+                });
+                
+                if (closestPoint) {
+                    tooltip.innerHTML = `<div>${closestPoint.date}</div><div>${closestPoint.minutes}分钟</div>`;
+                    
+                    let tooltipX = closestPoint.x + 15;
+                    let tooltipY = closestPoint.y - 30;
+                    
+                    const tooltipWidth = tooltip.offsetWidth || 100;
+                    const tooltipHeight = tooltip.offsetHeight || 40;
+                    
+                    if (tooltipX + tooltipWidth > chartWidth) {
+                        tooltipX = closestPoint.x - tooltipWidth - 15;
+                    }
+                    
+                    if (tooltipY < 10) {
+                        tooltipY = closestPoint.y + 15;
+                    }
+                    
+                    tooltip.style.left = `${tooltipX}px`;
+                    tooltip.style.top = `${tooltipY}px`;
+                    tooltip.style.display = 'block';
+                } else {
+                    tooltip.style.display = 'none';
+                }
+            };
+
+            canvas.onmouseleave = () => {
+                tooltip.style.display = 'none';
+            };
+        }
+
+        function toggleChartMode() {
+            showAllDays = !showAllDays;
+            const chartsContainer = document.getElementById('chartsContainer');
+            const lineChartContainer = document.getElementById('lineChartContainer');
+            
+            if (showAllDays) {
+                chartsContainer.style.display = 'none';
+                lineChartContainer.style.display = 'block';
+                drawLineChart();
+            } else {
+                chartsContainer.style.display = 'flex';
+                lineChartContainer.style.display = 'none';
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            if (!isStudying) {
+                document.getElementById('startBtn').style.display = 'block';
+                document.getElementById('recordsBtn').style.display = 'block';
+            }
+        }
+
+        function showSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            loadSettings();
+        }
+
+        function loadSettings() {
+            const settings = getSettings();
+            document.getElementById('autoFullscreen').checked = settings.autoFullscreen;
+            const restReminderTime = document.getElementById('restReminderTime');
+            if (restReminderTime) {
+                restReminderTime.value = settings.restReminderTime;
+            }
+            const screenWakeTime = document.getElementById('screenWakeTime');
+            if (screenWakeTime) {
+                screenWakeTime.value = settings.screenWakeTime;
+            }
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeValue = document.getElementById('volumeValue');
+            if (volumeSlider && volumeValue) {
+                volumeSlider.value = settings.volume;
+                volumeValue.textContent = settings.volume + '%';
+            }
+            if (bgMusic) {
+                bgMusic.volume = settings.volume / 100;
+            }
+        }
+
+        function loadVolumeOnStart() {
+            const settings = getSettings();
+            if (bgMusic) {
+                bgMusic.volume = settings.volume / 100;
+            }
+        }
+
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Wake Lock 已激活');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock 已释放');
+                    });
+                } catch (err) {
+                    console.log(`${err.name}, ${err.message}`);
+                    // 如果 Wake Lock 失败，尝试使用音频方式
+                    startWakeAudioFallback();
+                }
+            } else {
+                console.log('浏览器不支持 Wake Lock API');
+                startWakeAudioFallback();
+            }
+        }
+
+        function startWakeAudioFallback() {
+            // 使用无声音频作为屏幕唤醒的后备方案
+            const wakeAudio = document.getElementById('wakeAudio');
+            if (wakeAudio) {
+                // 创建一个 1 秒的静默音频
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const buffer = audioContext.createBuffer(1, audioContext.sampleRate, audioContext.sampleRate);
+                const channelData = buffer.getChannelData(0);
+                for (let i = 0; i < channelData.length; i++) {
+                    channelData[i] = 0;
+                }
+                // 将 AudioBuffer 转换为 WAV 文件
+                const wavBlob = audioBufferToWavBlob(buffer);
+                const url = URL.createObjectURL(wavBlob);
+                wakeAudio.src = url;
+                wakeAudio.loop = true;
+                wakeAudio.muted = true;
+                wakeAudio.volume = 0;
+                wakeAudio.play().catch(err => {
+                    console.log('无法播放唤醒音频:', err);
+                });
+            }
+        }
+
+        function audioBufferToWavBlob(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+
+            const dataLength = buffer.length * blockAlign;
+            const bufferLength = 44 + dataLength;
+
+            const arrayBuffer = new ArrayBuffer(bufferLength);
+            const view = new DataView(arrayBuffer);
+
+            // RIFF 标识符
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, 'WAVE');
+
+            // fmt 子块
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+
+            // data 子块
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataLength, true);
+
+            // 写入数据
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = buffer.getChannelData(channel)[i];
+                    // 钳位到 [-1, 1]
+                    const clamped = Math.max(-1, Math.min(1, sample));
+                    // 缩放至 16 位
+                    const int16 = clamped < 0 ? clamped * 0x8000 : clamped * 0x7FFF;
+                    view.setInt16(offset, int16, true);
+                    offset += bytesPerSample;
+                }
+            }
+
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        function stopWakeLock() {
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+            const wakeAudio = document.getElementById('wakeAudio');
+            if (wakeAudio) {
+                wakeAudio.pause();
+                wakeAudio.currentTime = 0;
+            }
+            if (wakeLockInterval) {
+                clearInterval(wakeLockInterval);
+                wakeLockInterval = null;
+            }
+        }
+
+        function startWakeLockTimer() {
+            stopWakeLock();
+            requestWakeLock();
+            const settings = getSettings();
+            const intervalMs = settings.screenWakeTime * 60 * 1000; // 转换为毫秒
+            // 定期重新请求 Wake Lock 或保持音频播放
+            wakeLockInterval = setInterval(async () => {
+                if (isStudying) {
+                    if (wakeLock) {
+                        wakeLock.release();
+                        try {
+                            wakeLock = await navigator.wakeLock.request('screen');
+                        } catch (err) {
+                            console.log('重新获取 Wake Lock 失败:', err);
+                        }
+                    } else {
+                        // 使用后备方案，模拟活动
+                        document.body.focus();
+                        document.body.click();
+                    }
+                }
+            }, intervalMs);
+        }
+
+        function getSettings() {
+            const defaultSettings = {
+                autoFullscreen: false,
+                restReminderTime: 50,
+                screenWakeTime: 3,
+                volume: 50
+            };
+            const saved = localStorage.getItem('studySettings');
+            if (saved) {
+                const savedSettings = JSON.parse(saved);
+                return {
+                    ...defaultSettings,
+                    ...savedSettings,
+                    volume: savedSettings.volume !== undefined ? savedSettings.volume : 50,
+                    restReminderTime: savedSettings.restReminderTime !== undefined ? savedSettings.restReminderTime : 50,
+                    screenWakeTime: savedSettings.screenWakeTime !== undefined ? savedSettings.screenWakeTime : 3
+                };
+            }
+            return defaultSettings;
+        }
+
+        function saveSettings() {
+            const restReminderTime = document.getElementById('restReminderTime');
+            const screenWakeTime = document.getElementById('screenWakeTime');
+            const settings = {
+                autoFullscreen: document.getElementById('autoFullscreen').checked,
+                restReminderTime: restReminderTime ? parseInt(restReminderTime.value) || 50 : 50,
+                screenWakeTime: screenWakeTime ? parseInt(screenWakeTime.value) || 3 : 3,
+                volume: parseInt(document.getElementById('volumeSlider').value)
+            };
+            localStorage.setItem('studySettings', JSON.stringify(settings));
+        }
+
+        function updateVolume() {
+            const volumeSlider = document.getElementById('volumeSlider');
+            const volumeValue = document.getElementById('volumeValue');
+            if (volumeSlider && volumeValue) {
+                const volume = parseInt(volumeSlider.value) || 50;
+                volumeValue.textContent = volume + '%';
+                if (bgMusic) {
+                    bgMusic.volume = volume / 100;
+                }
+                saveSettings();
+            }
+        }
+
+        function exportRecords() {
+            const data = {
+                records: records,
+                trashRecords: JSON.parse(localStorage.getItem('trashRecords') || '[]'),
+                exportTime: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `自习记录_${new Date().toLocaleDateString('zh-CN').replace(/\//g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('记录导出成功！');
+        }
+
+        function importRecords() {
+            document.getElementById('importFile').click();
+        }
+
+        document.getElementById('importFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.records && Array.isArray(data.records)) {
+                        records = [...records, ...data.records];
+                        saveRecords();
+                        if (data.trashRecords && Array.isArray(data.trashRecords)) {
+                            localStorage.setItem('trashRecords', JSON.stringify(data.trashRecords));
+                        }
+                        alert('记录导入成功！');
+                    } else {
+                        alert('无效的文件格式！');
+                    }
+                } catch (error) {
+                    alert('文件解析失败！');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        function clearAllRecords() {
+            if (!confirm('确定要清空所有记录吗？此操作不可撤销！')) return;
+            records = [];
+            saveRecords();
+            localStorage.removeItem('trashRecords');
+            alert('所有记录已清空！');
+        }
+
+        // 监听设置变化
+        document.getElementById('autoFullscreen').addEventListener('change', saveSettings);
+        document.getElementById('restReminderTime').addEventListener('change', saveSettings);
+        document.getElementById('restReminderTime').addEventListener('input', saveSettings);
+        document.getElementById('screenWakeTime').addEventListener('change', saveSettings);
+        document.getElementById('screenWakeTime').addEventListener('input', saveSettings);
+        document.getElementById('volumeSlider').addEventListener('input', updateVolume);
+
+        function showSoundModal() {
+            const soundList = document.getElementById('soundList');
+            soundList.innerHTML = '';
+
+            soundFiles.forEach((sound, index) => {
+                const item = document.createElement('div');
+                const isActive = index === currentSoundIndex;
+                const isHeartbeat = index === 3;
+                item.className = 'sound-item' + (isActive ? ' active' : '');
+                item.innerHTML = `
+                    <span class="sound-item-name" style="color: ${isActive ? sound.color : 'white'}">${sound.name}</span>
+                    <span class="sound-item-icon">${isActive ? '🔊' : '🔇'}</span>
+                `;
+                if (isActive) {
+                    item.style.background = sound.color + '40';
+                    item.style.borderColor = sound.color;
+                    if (isHeartbeat) {
+                        item.style.animation = 'heartbeat 2s ease-in-out infinite';
+                    } else {
+                        item.style.boxShadow = `inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 6px 16px ${sound.color}80`;
+                    }
+                }
+                item.onclick = () => selectSound(index);
+                soundList.appendChild(item);
+            });
+
+            document.getElementById('soundModal').classList.add('active');
+        }
+
+        function addRaindrops() {
+            const orbs = document.querySelectorAll('.glass-orb');
+            orbs.forEach(orb => {
+                for (let i = 0; i < 8; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'rain-drop';
+                    drop.style.left = Math.random() * 100 + '%';
+                    drop.style.animationDelay = Math.random() * 0.8 + 's';
+                    drop.style.animationDuration = (0.6 + Math.random() * 0.4) + 's';
+                    orb.appendChild(drop);
+                }
+            });
+            startLightningEffect();
+        }
+
+        function removeRaindrops() {
+            const drops = document.querySelectorAll('.rain-drop');
+            drops.forEach(drop => drop.remove());
+            stopLightningEffect();
+        }
+
+        let lightningInterval = null;
+
+        function triggerLightning() {
+            const orbs = document.querySelectorAll('.glass-orb');
+            orbs.forEach(orb => {
+                orb.classList.add('lightning');
+            });
+            setTimeout(() => {
+                orbs.forEach(orb => {
+                    orb.classList.remove('lightning');
+                });
+            }, 300);
+        }
+
+        function startLightningEffect() {
+            stopLightningEffect();
+            const scheduleNext = () => {
+                const delay = (10 + Math.random() * 20) * 1000;
+                lightningInterval = setTimeout(() => {
+                    triggerLightning();
+                    scheduleNext();
+                }, delay);
+            };
+            scheduleNext();
+        }
+
+        function stopLightningEffect() {
+            if (lightningInterval) {
+                clearTimeout(lightningInterval);
+                lightningInterval = null;
+            }
+        }
+
+        function addFireEffects() {
+            const timeDisplays = document.querySelectorAll('.current-time, .study-display, #timerDisplay, #studyDisplay, .time-display');
+            
+            timeDisplays.forEach(display => {
+                if (!display.classList.contains('fire-glow')) {
+                    display.classList.add('fire-glow');
+                    createFireParticles(display);
+                    createEmbers(display);
+                }
+            });
+        }
+
+        function createFireParticles(element) {
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('span');
+                particle.className = 'fire-particle';
+                particle.style.left = (30 + Math.random() * 40) + '%';
+                particle.style.animationDelay = Math.random() * 1.5 + 's';
+                particle.style.animationDuration = (1 + Math.random() * 0.5) + 's';
+                element.appendChild(particle);
+            }
+        }
+
+        function createEmbers(element) {
+            for (let i = 0; i < 4; i++) {
+                const ember = document.createElement('span');
+                ember.className = 'ember';
+                ember.style.left = (20 + Math.random() * 60) + '%';
+                ember.style.animationDelay = Math.random() * 2 + 's';
+                ember.style.animationDuration = (1.5 + Math.random() * 1) + 's';
+                element.appendChild(ember);
+            }
+        }
+
+        function removeFireEffects() {
+            const elements = document.querySelectorAll('.fire-glow');
+            const particles = document.querySelectorAll('.fire-particle, .ember');
+            
+            elements.forEach(el => {
+                el.classList.remove('fire-glow');
+            });
+            
+            particles.forEach(p => p.remove());
+        }
+
+        function selectSound(index) {
+            const bgMusic = document.getElementById('bgMusic');
+            const soundBtn = document.getElementById('soundBtn');
+
+            if (currentSoundIndex === index) {
+                bgMusic.pause();
+                bgMusic.currentTime = 0;
+                currentSoundIndex = -1;
+                soundBtn.classList.remove('playing');
+                soundBtn.style.animation = 'none';
+                soundBtn.style.background = 'rgba(255, 255, 255, 0.08)';
+                soundBtn.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                soundBtn.style.boxShadow = 'inset 2px -2px 2px -1px rgba(255, 255, 255, 0.7), inset -2px 2px 2px -1px rgba(255, 255, 255, 0.7), inset 4px -4px 1px -3px rgba(255, 255, 255, 0.4), inset -4px 4px 1px -3px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.15)';
+                
+                removeRaindrops();
+                removeFireEffects();
+            } else {
+                currentSoundIndex = index;
+                const soundColor = soundFiles[index].color;
+                bgMusic.src = `音效/${soundFiles[index].file}`;
+                bgMusic.play().catch(err => {
+                    alert('无法播放音频，请检查文件路径');
+                });
+                soundBtn.classList.add('playing');
+                
+                removeRaindrops();
+                removeFireEffects();
+                
+                if (index === 3) {
+                    soundBtn.style.animation = 'heartbeatGlow 2s ease-in-out infinite';
+                    soundBtn.style.background = '#a4b0be30';
+                    soundBtn.style.borderColor = '#a4b0be80';
+                    soundBtn.style.boxShadow = 'inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px #a4b0be50';
+                } else if (index === 5) {
+                    soundBtn.style.animation = 'none';
+                    soundBtn.style.background = soundColor + '30';
+                    soundBtn.style.borderColor = soundColor + '80';
+                    soundBtn.style.boxShadow = `inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px ${soundColor}50`;
+                    setTimeout(() => {
+                        addRaindrops();
+                        addFireEffects();
+                    }, 100);
+                } else {
+                    soundBtn.style.animation = 'none';
+                    soundBtn.style.background = soundColor + '30';
+                    soundBtn.style.borderColor = soundColor + '80';
+                    soundBtn.style.boxShadow = `inset 2px -2px 3px -1px rgba(255, 255, 255, 0.8), inset -2px 2px 3px -1px rgba(255, 255, 255, 0.8), 0 4px 12px ${soundColor}50`;
+                }
+            }
+
+            showSoundModal();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    alert('全屏模式不可用');
+                });
+                document.getElementById('fullscreenBtn').style.display = 'none';
+                document.getElementById('exitFullscreenBtn').style.display = 'flex';
+            } else {
+                document.exitFullscreen();
+                document.getElementById('fullscreenBtn').style.display = 'flex';
+                document.getElementById('exitFullscreenBtn').style.display = 'none';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                document.getElementById('fullscreenBtn').style.display = 'flex';
+                document.getElementById('exitFullscreenBtn').style.display = 'none';
+            }
+        });
+
+        document.getElementById('timeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startStudyWithTime();
+            }
+        });
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                if (!isStudying) {
+                    document.getElementById('startBtn').style.display = 'block';
+                    document.getElementById('recordsBtn').style.display = 'block';
+                }
+            }
+        };
+
+        setInterval(updateCurrentTime, 1000);
+        updateCurrentTime();
+        loadRecords();
+        loadStudyState();
+        loadVolumeOnStart();
+
+        const parallaxContainer = document.getElementById('parallaxContainer');
+        const parallaxBg = document.querySelector('.parallax-bg');
+        const studyBg = document.getElementById('studyBg');
+        const bgOverlay = document.getElementById('bgOverlay');
+
+        const layers = [
+            { element: parallaxBg, offsetX: 6, offsetY: 3 },
+            { element: studyBg, offsetX: 6, offsetY: 3 },
+            { element: bgOverlay, offsetX: 6, offsetY: 3 },
+            { element: document.querySelector('#fullscreenBtn'), offsetX: 7, offsetY: 4 },
+            { element: document.querySelector('#exitFullscreenBtn'), offsetX: 7, offsetY: 4 },
+            { element: document.querySelector('.current-time'), offsetX: 8, offsetY: 5 },
+            { element: document.querySelector('#stopBtn'), offsetX: 10, offsetY: 6 },
+            { element: document.querySelector('#breakBtn'), offsetX: 10, offsetY: 6 },
+            { element: document.querySelector('#soundBtn'), offsetX: 12, offsetY: 8 },
+            { element: document.querySelector('#settingsBtn'), offsetX: 14, offsetY: 10 },
+            { element: document.querySelector('.main-container'), offsetX: 16, offsetY: 12 },
+            { element: document.querySelector('.study-display'), offsetX: 18, offsetY: 14 },
+            { element: document.querySelector('.modal'), offsetX: 20, offsetY: 15 },
+            { element: document.querySelector('.glass-orb-1'), offsetX: 26, offsetY: 18 },
+            { element: document.querySelector('.glass-orb-2'), offsetX: 28, offsetY: 19 },
+            { element: document.querySelector('.glass-orb-3'), offsetX: 30, offsetY: 20 },
+            { element: document.querySelector('.glass-orb-4'), offsetX: 32, offsetY: 21 }
+        ];
+
+        let targetX = 0;
+        let targetY = 0;
+        let currentX = 0;
+        let currentY = 0;
+        const lerpFactor = 0.12;
+        let scheduledFrame = false;
+        let idleTime = 0;
+        let floatAngle = 0;
+
+        document.addEventListener('pointermove', (e) => {
+            const rect = document.documentElement.getBoundingClientRect();
+            const localX = e.clientX;
+            const localY = e.clientY;
+            const centerX = localX - rect.width / 2;
+            const centerY = localY - rect.height / 2;
+            targetX = centerX / (rect.width / 2);
+            targetY = centerY / (rect.height / 2);
+            idleTime = 0;
+            if (!scheduledFrame) {
+                scheduledFrame = true;
+                requestAnimationFrame(renderParallax);
+            }
+        });
+
+        document.addEventListener('mouseleave', () => {
+            targetX = 0;
+            targetY = 0;
+            if (!scheduledFrame) {
+                scheduledFrame = true;
+                requestAnimationFrame(renderParallax);
+            }
+        });
+
+        function renderParallax() {
+            idleTime++;
+            
+            if (idleTime > 120) {
+                const intensity = Math.min((idleTime - 120) / 300, 1);
+                floatAngle += 0.008;
+                const floatX = Math.sin(floatAngle * 1.3) * 3 * intensity;
+                const floatY = Math.cos(floatAngle * 0.9) * 2 * intensity;
+                
+                targetX = floatX;
+                targetY = floatY;
+                
+                const floatX1 = Math.sin(floatAngle * 0.5) * 4 * intensity;
+                const floatY1 = Math.cos(floatAngle * 0.6) * 2.5 * intensity;
+                const floatX2 = Math.sin(floatAngle * 1.8) * 2 * intensity;
+                const floatY2 = Math.cos(floatAngle * 0.4) * 3.5 * intensity;
+                const floatX3 = Math.sin(floatAngle * 1.2) * 3 * intensity;
+                const floatY3 = Math.cos(floatAngle * 0.8) * 2 * intensity;
+                const floatX4 = Math.sin(floatAngle * 0.7) * 3.5 * intensity;
+                const floatY4 = Math.cos(floatAngle * 1.1) * 2.8 * intensity;
+                
+                if (layers[11]) { layers[11].floatX = floatX1; layers[11].floatY = floatY1; }
+                if (layers[12]) { layers[12].floatX = floatX2; layers[12].floatY = floatY2; }
+                if (layers[13]) { layers[13].floatX = floatX3; layers[13].floatY = floatY3; }
+                if (layers[14]) { layers[14].floatX = floatX4; layers[14].floatY = floatY4; }
+            } else {
+                for (const layer of layers) {
+                    layer.floatX = 0;
+                    layer.floatY = 0;
+                }
+            }
+
+            currentX += (targetX - currentX) * lerpFactor;
+            currentY += (targetY - currentY) * lerpFactor;
+
+            if (Math.abs(targetX - currentX) < 0.001 && Math.abs(targetY - currentY) < 0.001) {
+                currentX = targetX;
+                currentY = targetY;
+            }
+
+            for (const layer of layers) {
+                if (layer.element) {
+                    let moveX = currentX * layer.offsetX;
+                    let moveY = currentY * layer.offsetY;
+                    if (layer.floatX !== undefined) moveX += layer.floatX;
+                    if (layer.floatY !== undefined) moveY += layer.floatY;
+                    layer.element.style.transform = `translate(${moveX}px, ${moveY}px)`;
+                }
+            }
+
+            requestAnimationFrame(renderParallax);
+        }
+    </script>
+</body>
+</html>
